@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>EKG-Quiz NotSan 04/25</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 2em auto;
+      background: white;
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .question {
+      margin-bottom: 1em;
+      font-size: 1.2em;
+    }
+    .answers button {
+      display: block;
+      width: 100%;
+      margin: 0.3em 0;
+      padding: 0.8em;
+      border: none;
+      background: #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .answers button:hover {
+      background: #cfd8dc;
+    }
+    .feedback {
+      margin-top: 1em;
+      font-weight: bold;
+      text-align: center;
+    }
+    #score-container {
+      margin-top: 2em;
+      text-align: center;
+      font-size: 1.2em;
+    }
+    .mode-switch {
+      text-align: center;
+      margin-bottom: 1.5em;
+    }
+    .progress {
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      margin-bottom: 1em;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #4caf50;
+      width: 0;
+      transition: width 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EKG-Quiz NotSan 04/25</h1>
+    <div class="mode-switch">
+      <label>
+        <input type="checkbox" id="testModeToggle" />
+        Testmodus (sofortiges Feedback)
+      </label>
+    </div>
+
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div id="quiz-container"></div>
+    <div id="score-container"></div>
+  </div>
+
+  <script>
+    const questions = [{"q": "Was misst das EKG?", "options": ["Die mechanische Herzleistung", "Die elektrischen Kontraktionsimpulse", "Den Blutdruck", "Die Körpertemperatur"], "answer": 1}, {"q": "Wie viele Ableitungen hat ein Standard-EKG?", "options": ["6", "10", "12", "15"], "answer": 2}, {"q": "Was beschreibt die elektrische Herzachse?", "options": ["Die Frequenz des Herzschlags", "Die mechanische Herzleistung", "Die Ausbreitungsrichtung der Depolarisation", "Den Blutdruck im linken Ventrikel"], "answer": 2}, {"q": "Was zeigt eine biphasische P-Welle in V1 typischerweise an?", "options": ["Sinustachykardie", "AV-Block", "Vorhofhypertrophie", "Linksschenkelblock"], "answer": 2}, {"q": "Was zeigt eine große R-Zacke in V1 an?", "options": ["Linksherzhypertrophie", "Rechtsherzhypertrophie", "Infarkt", "Vorhofflimmern"], "answer": 1}, {"q": "Welche Ableitung ist typisch für die Erkennung eines Vorderwandinfarkts?", "options": ["aVL", "V1-V4", "III", "aVF"], "answer": 1}, {"q": "Was ist beim Kammerflimmern im EKG sichtbar?", "options": ["Normale QRS-Komplexe", "Schnelle, regelmäßige P-Wellen", "Chaotisches, unregelmäßiges Muster ohne erkennbare Komplexe", "AV-Block III. Grades"], "answer": 2}, {"q": "Welcher Lagetyp wird bei einem QRS-Komplex positiv in I und negativ in aVF vermutet?", "options": ["Linkstyp", "Rechtstyp", "Steiltyp", "Überdrehter Linkstyp"], "answer": 3}, {"q": "Was ist typisch für eine ventrikuläre Extrasystole?", "options": ["Schmaler QRS-Komplex", "Regelmäßiger Rhythmus", "Breiter QRS-Komplex", "Normale P-Welle"], "answer": 2}, {"q": "Was zeigt der QRS-Komplex an?", "options": ["Vorhoferregung", "Repolarisation der Kammern", "Kammererregung", "Sinusknotenerregung"], "answer": 2}, {"q": "Welche EKG-Veränderung weist typischerweise auf eine Linksherzhypertrophie hin?", "options": ["Hohe R-Zacke in V5/V6", "Biphasische P-Welle in V1", "ST-Hebung in III", "Breiter QRS in V1"], "answer": 0}, {"q": "Was passiert bei einem AV-Block III. Grades?", "options": ["Erregung wird leicht verzögert weitergeleitet", "Keine Erregung erreicht die Kammern", "Vorhöfe und Kammern schlagen synchron", "Nur Extrasystolen werden übertragen"], "answer": 1}, {"q": "Welche Frequenz hat ein Kammerersatzrhythmus typischerweise?", "options": ["90-100 Schläge/min", "60-70 Schläge/min", "40-50 Schläge/min", "30-40 Schläge/min"], "answer": 3}, {"q": "Was versteht man unter einem R-auf-T-Phänomen?", "options": ["Eine P-Welle überlappt mit T-Welle", "Eine Extrasystole fällt in die T-Welle", "Ein AV-Block", "Ein QRS-Komplex fehlt"], "answer": 1}, {"q": "Welche Ableitungen zeigen die elektrische Aktivität in der Horizontalebene?", "options": ["I, II, III", "aVR, aVL, aVF", "V1-V6", "Nur aVR"], "answer": 2}, {"q": "Was bedeutet eine ST-Hebung im EKG?", "options": ["AV-Block", "Herzinfarkt", "Hypertrophie", "Sinusknotenerkrankung"], "answer": 1}, {"q": "Wie nennt man eine regelmäßige ventrikuläre Extrasystole alle zwei Schläge?", "options": ["Bigeminus", "Trigeminus", "Quadrigeminus", "Salve"], "answer": 0}, {"q": "Was ist beim Linksschenkelblock typisch?", "options": ["V1 zeigt M-förmigen QRS-Komplex", "V1 zeigt schmalen QRS", "aVR zeigt ST-Hebung", "V1 zeigt biphasische P-Welle"], "answer": 0}, {"q": "Was misst das PQ-Intervall?", "options": ["Zeit von P-Welle bis R-Zacke", "Zeit von Vorhoferregung bis Kammererregung", "Kammererregungszeit", "Repolarisationszeit"], "answer": 1}, {"q": "Welche Aussage zur T-Welle ist korrekt?", "options": ["Sie zeigt die Vorhoferregung", "Sie stellt die Repolarisation der Kammern dar", "Sie zeigt den Sinusrhythmus", "Sie ist beim Infarkt immer negativ"], "answer": 1}];
+    let current = 0;
+    let score = 0;
+    let review = [];
+    const progressBar = document.getElementById("progressBar");
+
+    const mode = () => document.getElementById("testModeToggle").checked;
+
+    function updateProgress() {
+      progressBar.style.width = ((current / questions.length) * 100) + "%";
+    }
+
+    function showQuestion() {
+      updateProgress();
+      const q = questions[current];
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = '<div class="question"><strong>Frage ' + (current + 1) + ':</strong> ' + q.q + '</div>';
+      const answers = document.createElement("div");
+      answers.className = "answers";
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(i, q);
+        answers.appendChild(btn);
+      });
+      container.appendChild(answers);
+    }
+
+    function checkAnswer(choice, question) {
+      const correct = question.answer;
+      review.push({
+        question: question.q,
+        options: question.options,
+        selected: choice,
+        correct: correct
+      });
+      const container = document.getElementById("quiz-container");
+      if (mode()) {
+        const feedback = document.createElement("div");
+        feedback.className = "feedback";
+        feedback.innerHTML = (choice === correct ? "✅ Richtig!" : "❌ Falsch!") +
+                             "<br>Richtige Antwort: <strong>" + question.options[correct] + "</strong>";
+        if (choice === correct) score++;
+        container.appendChild(feedback);
+        setTimeout(nextQuestion, 2000);
+      } else {
+        if (choice === correct) score++;
+        nextQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      updateProgress();
+      const container = document.getElementById("quiz-container");
+      container.innerHTML = "<h2>Dein Ergebnis: " + score + " von " + questions.length + "</h2>";
+      const highscore = parseInt(localStorage.getItem("highscore_ekg") || "0");
+      if (score > highscore) {
+        localStorage.setItem("highscore_ekg", score);
+        container.innerHTML += "<p><strong>🎉 Neuer Highscore!</strong></p>";
+      } else {
+        container.innerHTML += "<p>Highscore: " + highscore + "</p>";
+      }
+
+      const reviewTitle = document.createElement("h3");
+      reviewTitle.textContent = "Antwortübersicht:";
+      container.appendChild(reviewTitle);
+
+      const list = document.createElement("ol");
+      review.forEach(item => {
+        const li = document.createElement("li");
+        li.innerHTML = "<strong>" + item.question + "</strong><br>" +
+          item.options.map((opt, i) => {
+            let marker = "";
+            if (i === item.correct && i === item.selected) marker = " ✅";
+            else if (i === item.correct) marker = " ✔️ (richtig)";
+            else if (i === item.selected) marker = " ❌ (deine Auswahl)";
+            return "&bull; " + opt + marker;
+          }).join("<br>");
+        li.style.marginBottom = "1em";
+        list.appendChild(li);
+      });
+      container.appendChild(list);
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
